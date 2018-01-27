@@ -7,12 +7,10 @@ module OauthTokenVerifier
         OauthTokenVerifier.configure do |config|
           config.enabled_providers = [:vk, :facebook, :google]
         end
-
-        stub_api_requests
       end
 
       context "with correct access token" do
-        it "returns Struct containing user data" do
+        it "returns Struct containing user data", :vcr do
           response = verify(provider, token: 'correct_token')
           expect(response).to respond_to(:uid)
           expect(response).to respond_to(:info)
@@ -21,7 +19,7 @@ module OauthTokenVerifier
       end
 
       context "with incorrect access token" do
-        it "returns error message" do
+        it "returns error message", :vcr do
           expect{ verify(provider, token: 'incorrect_token') }
           .to raise_error(OauthTokenVerifier::TokenVerifier::TokenCheckError)
         end
@@ -35,7 +33,7 @@ module OauthTokenVerifier
         end
       end
 
-      it "does not perform any action" do
+      it "does not perform any action", :vcr do
         expect{ verify(provider, token: 'correct_token') }
         .to raise_error(OauthTokenVerifier::TokenVerifier::NoProviderFoundError)
       end
